@@ -36,8 +36,8 @@ def demo():
     """Simple demo to test and show off"""
     leds = WS2801LED()
     for n in range(60000):
-        leds.bytes[3 * n % leds.num_leds] += n % 7
-        leds.bytes[3 * n % leds.num_leds] %= 17
+        leds.bytes[n % (3 * leds.num_leds)] += n % 7
+        leds.bytes[n % (3 * leds.num_leds)] %= 17
         leds.refresh()
         sleep(0.001)
 
