@@ -76,8 +76,8 @@ class WS2801LED:
 
         @color.setter
         def color(self, value):
-            if type(value) is tuple and len(value) is 3 and 0 < min(value) and \
-                            max(value) < 255:
+            if type(value) is tuple and len(value) is 3 and 0 <= min(value) \
+                    and max(value) <= 255:
                 self._red = value[0]
                 self._blue = value[1]
                 self._green = value[2]
