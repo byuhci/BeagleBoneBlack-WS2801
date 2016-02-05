@@ -104,22 +104,16 @@ class WS2801LED:
 def demo():
     """Simple demo to test and show off"""
     leds = WS2801LED()
-    for n in range(60000):
+    for n in range(12000):
         num = leds.leds[n % leds.num_leds].color
         if n % 3 == 0:
-            num[0] = (num[0] + n) % 17
-            num[1] /= 2
-            num[2] /= 2
+            num = (num[0] + n) % 17, num[1] / 2, num[2] / 2
         elif n % 3 == 1:
-            num[0] /= 2
-            num[1] = (num[0] + n) % 17
-            num[2] /= 2
+            num = num[0]/2, (num[1] + n) % 17, num[2] / 2
         else:
-            num[0] /= 2
-            num[1] /= 2
-            num[2] = (num[0] + n) % 17
+            num = num[0] / 2, num[1] / 2, (num[2] + n) % 17
         leds.leds[n % leds.num_leds].color = num
-        sleep(0.001)
+        sleep(0.005)
     leds.off()
 
 
