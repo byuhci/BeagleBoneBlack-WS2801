@@ -86,8 +86,8 @@ class WS2801LED:
                 self._blue = (value >> 8) & 255
                 self._red = value & 255
             self._chain.bytes[self.pos] = self._red
-            self._chain.bytes[self.pos] = self._green
-            self._chain.bytes[self.pos] = self._blue
+            self._chain.bytes[self.pos + 1] = self._green
+            self._chain.bytes[self.pos + 2] = self._blue
             self._chain.refresh()
 
     def refresh(self, setter=False):
@@ -109,7 +109,7 @@ def demo():
         if n % 3 == 0:
             num = (num[0] + n) % 17, num[1] / 2, num[2] / 2
         elif n % 3 == 1:
-            num = num[0]/2, (num[1] + n) % 17, num[2] / 2
+            num = num[0] / 2, (num[1] + n) % 17, num[2] / 2
         else:
             num = num[0] / 2, num[1] / 2, (num[2] + n) % 17
         leds.leds[n % leds.num_leds].color = num
