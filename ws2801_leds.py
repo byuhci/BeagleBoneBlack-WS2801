@@ -13,20 +13,69 @@ class WS2801LED:
         Opens the file object to connect to the LEDs and initializes objects
         """
 
-        # Open the file
-        self.spi = open(dev_file, 'wb')
         self.num_leds = num_leds
+
+        # Open the file
+        self._spi = open(dev_file, 'wb')
+
+        # Make the underlying byte array
         self.bytes = bytearray(3 * self.num_leds)
+
+        # Initialize LED objects (could be better)
+        self.leds = []
+        for n in range(num_leds):
+            self.leds[n] = self.LED(self, 3 * n)
 
         # Write out bytes to turn off LEDs
         self.refresh()
 
+    class LED:
+        def __init__(self, chain, pos):
+            self._red = 0
+            self._green = 0
+            self._blue = 0
+            self._chain = chain  # Reference to the parent object (not great)
+            self.pos = pos
+
+        @property
+        def red(self):
+            return self._red
+
+        @red.setter
+        def red(self, value):
+            if 0 <= value <= 255:
+                self._red = value
+            self._chain.bytes[self.pos] = value
+            self._chain.refresh()
+
+        @property
+        def green(self):
+            return self._green
+
+        @green.setter
+        def green(self, value):
+            if 0 <= value <= 255:
+                self._green = value
+            self._chain.bytes[self.pos + 1] = value
+            self._chain.refresh()
+
+        @property
+        def blue(self):
+            return self._blue
+
+        @blue.setter
+        def blue(self, value):
+            if 0 <= value <= 255:
+                self._blue = value
+            self._chain.bytes[self.pos + 2] = value
+            self._chain.refresh()
+
     def refresh(self):
         """Send signal out to LEDs from byte array"""
-        self.spi.write(self.bytes)
-        self.spi.flush()
+        self._spi.write(self.bytes)
+        self._spi.flush()
 
-    def all_leds_off(self):
+    def off(self):
         """Reset all bytes to zero and turn off LEDs"""
         self.bytes = bytearray(3 * self.num_leds)
         self.refresh()
@@ -36,10 +85,14 @@ def demo():
     """Simple demo to test and show off"""
     leds = WS2801LED()
     for n in range(60000):
-        leds.bytes[n % (3 * leds.num_leds)] += n % 7
-        leds.bytes[n % (3 * leds.num_leds)] %= 17
-        leds.refresh()
+        leds.leds[n % leds.num_leds].red = (leds.leds[
+                                            n % leds.num_leds].red + n) % 17
+        leds.leds[n % leds.num_leds].green = (leds.leds[
+                                              n % leds.num_leds].green + n) % 17
+        leds.leds[n % leds.num_leds].blue = (leds.leds[n % leds.num_leds].blue +
+                                             n) % 17
         sleep(0.001)
+    leds.off()
 
 
 if __name__ == '__main__':
