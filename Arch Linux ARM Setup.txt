@@ -3,6 +3,7 @@ For now, this is just a brief record of what I had to do to get this to work so 
 1. Find the SPIDEV0 dtc overlay in /lib/firmware.
 2. Decompile
 3. Adjust frequency to 1 MHz
+3a. I *may* have also commented out a line containing CPHA or something.
 4. Recompile
 5. Test with "echo 'BB-SPIDEV0' > /sys/devices/platform/bone_capemgr/slots"
 6. If ls /dev shows /dev/spidev1.0, good.
@@ -15,3 +16,13 @@ For now, this is just a brief record of what I had to do to get this to work so 
     right permissions.
 	
 Note: Connect clock to pin 9.22 and MOSI to 9.18. I think 9.21 is MISO and 9.17 is probably CS.
+
+Links:
+<https://www.linux.com/learn/tutorials/746860-how-to-access-chips-over-the
+-spi-on-beaglebone-black>
+<https://gist.github.com/bodokaiser/6854708>
+<http://beagleboard.org/static/images/cape-headers.png>
+<http://embedded-basics.blogspot
+.com/2014/10/enabling-spi0-on-beaglebone-black.html>
+<http://dlnware.com/theory/SPI-Transfer-Modes>
+<https://bbs.archlinux.org/viewtopic.php?id=85167>
