@@ -56,7 +56,7 @@ class WS2801LED:
         def green(self, value):
             if 0 <= value <= 255:
                 self._green = value
-            self._chain.bytes[self.pos + 1] = int(value)
+            self._chain.bytes[self.pos] = int(value)
             self._chain.refresh()
 
         @property
@@ -67,10 +67,30 @@ class WS2801LED:
         def blue(self, value):
             if 0 <= value <= 255:
                 self._blue = value
-            self._chain.bytes[self.pos + 2] = int(value)
+            self._chain.bytes[self.pos] = int(value)
             self._chain.refresh()
 
-    def refresh(self):
+        @property
+        def color(self):
+            return self._red, self._blue, self._green
+
+        @color.setter
+        def color(self, value):
+            if type(value) is tuple and len(value) is 3 and 0 < min(value) and \
+                            max(value) < 255:
+                self._red = value[0]
+                self._blue = value[1]
+                self._green = value[2]
+            elif type(value) is int and 0 < value < 2 ** 24:
+                self._red = (value >> 16) & 255
+                self._blue = (value >> 8) & 255
+                self._red = value & 255
+            self._chain.bytes[self.pos] = self._red
+            self._chain.bytes[self.pos] = self._green
+            self._chain.bytes[self.pos] = self._blue
+            self._chain.refresh()
+
+    def refresh(self, setter=False):
         """Send signal out to LEDs from byte array"""
         self._spi.write(self.bytes)
         self._spi.flush()
@@ -85,21 +105,20 @@ def demo():
     """Simple demo to test and show off"""
     leds = WS2801LED()
     for n in range(60000):
+        num = leds.leds[n % leds.num_leds].color
         if n % 3 == 0:
-            leds.leds[n % leds.num_leds].red = \
-                (leds.leds[n % leds.num_leds].red + n) % 17
-            leds.leds[n % leds.num_leds].green /= 2
-            leds.leds[n % leds.num_leds].blue /= 2
+            num[0] = (num[0] + n) % 17
+            num[1] /= 2
+            num[2] /= 2
         elif n % 3 == 1:
-            leds.leds[n % leds.num_leds].green = \
-                (leds.leds[n % leds.num_leds].green + n) % 17
-            leds.leds[n % leds.num_leds].red /= 2
-            leds.leds[n % leds.num_leds].blue /= 2
+            num[0] /= 2
+            num[1] = (num[0] + n) % 17
+            num[2] /= 2
         else:
-            leds.leds[n % leds.num_leds].blue = \
-                (leds.leds[n % leds.num_leds].blue + n) % 17
-            leds.leds[n % leds.num_leds].green /= 2
-            leds.leds[n % leds.num_leds].red /= 2
+            num[0] /= 2
+            num[1] /= 2
+            num[2] = (num[0] + n) % 17
+        leds.leds[n % leds.num_leds].color = num
         sleep(0.001)
     leds.off()
 
