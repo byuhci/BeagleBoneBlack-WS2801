@@ -24,7 +24,7 @@ class WS2801LED:
         # Initialize LED objects (could be better)
         self.leds = []
         for n in range(num_leds):
-            self.leds[n] = self.LED(self, 3 * n)
+            self.leds.append(self.LED(self, 3 * n))
 
         # Write out bytes to turn off LEDs
         self.refresh()
@@ -85,12 +85,21 @@ def demo():
     """Simple demo to test and show off"""
     leds = WS2801LED()
     for n in range(60000):
-        leds.leds[n % leds.num_leds].red = (leds.leds[
-                                            n % leds.num_leds].red + n) % 17
-        leds.leds[n % leds.num_leds].green = (leds.leds[
-                                              n % leds.num_leds].green + n) % 17
-        leds.leds[n % leds.num_leds].blue = (leds.leds[n % leds.num_leds].blue +
-                                             n) % 17
+        if n % 3 == 0:
+            leds.leds[n % leds.num_leds].red = \
+                (leds.leds[n % leds.num_leds].red + n) % 17
+            leds.leds[n % leds.num_leds].green /= 2
+            leds.leds[n % leds.num_leds].blue /= 2
+        elif n % 3 == 1:
+            leds.leds[n % leds.num_leds].green = \
+                (leds.leds[n % leds.num_leds].green + n) % 17
+            leds.leds[n % leds.num_leds].red /= 2
+            leds.leds[n % leds.num_leds].blue /= 2
+        else:
+            leds.leds[n % leds.num_leds].blue = \
+                (leds.leds[n % leds.num_leds].blue + n) % 17
+            leds.leds[n % leds.num_leds].green /= 2
+            leds.leds[n % leds.num_leds].red /= 2
         sleep(0.001)
     leds.off()
 
