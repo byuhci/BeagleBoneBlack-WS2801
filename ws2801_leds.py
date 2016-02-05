@@ -45,7 +45,7 @@ class WS2801LED:
         def red(self, value):
             if 0 <= value <= 255:
                 self._red = value
-            self._chain.bytes[self.pos] = value
+            self._chain.bytes[self.pos] = int(value)
             self._chain.refresh()
 
         @property
@@ -56,7 +56,7 @@ class WS2801LED:
         def green(self, value):
             if 0 <= value <= 255:
                 self._green = value
-            self._chain.bytes[self.pos + 1] = value
+            self._chain.bytes[self.pos + 1] = int(value)
             self._chain.refresh()
 
         @property
@@ -67,7 +67,7 @@ class WS2801LED:
         def blue(self, value):
             if 0 <= value <= 255:
                 self._blue = value
-            self._chain.bytes[self.pos + 2] = value
+            self._chain.bytes[self.pos + 2] = int(value)
             self._chain.refresh()
 
     def refresh(self):
