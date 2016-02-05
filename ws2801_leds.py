@@ -14,7 +14,7 @@ class WS2801LED:
         """
 
         # Open the file
-        self.leds = open(dev_file, 'wb')
+        self.spi = open(dev_file, 'wb')
         self.num_leds = num_leds
         self.bytes = bytearray(3 * self.num_leds)
 
@@ -23,8 +23,8 @@ class WS2801LED:
 
     def refresh(self):
         """Send signal out to LEDs from byte array"""
-        self.leds.write(self.bytes)
-        self.flush()
+        self.spi.write(self.bytes)
+        self.spi.flush()
 
     def all_leds_off(self):
         """Reset all bytes to zero and turn off LEDs"""
