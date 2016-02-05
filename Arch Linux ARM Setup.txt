@@ -1,0 +1,17 @@
+For now, this is just a brief record of what I had to do to get this to work so I dont' forget.
+
+1. Find the SPIDEV0 dtc overlay in /lib/firmware.
+2. Decompile
+3. Adjust frequency to 1 MHz
+4. Recompile
+5. Test with "echo 'BB-SPIDEV0' > /sys/devices/platform/bone_capemgr/slots"
+6. If ls /dev shows /dev/spidev1.0, good.
+7. Add a file to /etc/tmpfiles.d/ containing 
+    w /sys/devices/platform/bone_capemgr/slots - - - - BB-SPIDEV0
+8. Make this executable, just in case.
+9. Add a rule for udev by adding 60-spi.rules (or similar) to /etc/udev/rules.d/
+    containing KERNEL=="spidev1.0", MODE="0666"
+10. Reboot and check that /dev automatically contains spidev1.0 and has the 
+    right permissions.
+	
+Note: Connect clock to pin 9.22 and MOSI to 9.18. I think 9.21 is MISO and 9.17 is probably CS.
