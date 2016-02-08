@@ -81,7 +81,7 @@ class WS2801LED:
                 self._red = value[0]
                 self._blue = value[1]
                 self._green = value[2]
-            elif type(value) is int and 0 < value < 2 ** 24:
+            elif type(value) is int and 0 <= value < 2 ** 24:
                 self._red = (value >> 16) & 255
                 self._blue = (value >> 8) & 255
                 self._red = value & 255
