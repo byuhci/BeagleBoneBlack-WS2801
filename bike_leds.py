@@ -18,7 +18,7 @@ from time import sleep
 
 __author__ = 'Kristian Sims'
 
-turn_delay = 1
+turn_delay = 0.6
 
 
 class BikeLEDs:
@@ -81,7 +81,7 @@ class BikeLEDs:
             self.leds[2] = soft_yellow
             self.leds.refresh()
 
-            sleep(turn_delay)
+            sleep(1.5 *turn_delay)
 
 if __name__ == '__main__':
     me = BikeLEDs()
