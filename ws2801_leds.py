@@ -56,19 +56,20 @@ class WS2801LEDS:
         # Set LED as packed int (must be less than 2^24)
         if type(value) is int:
             if not 0 <= value < 2 ** 24:
-                raise ValueError("LED value must be a 24-bit positive number")
+                raise ValueError('LED value must be a 24-bit positive number.')
             self._leds[key] = (
                 (value >> 16) & 0xFFFF,
                 (value >> 8) & 0xFFFF,
                 value & 0xFFFF)
         # Set LED as tuple of ints (must be less than 2^8)
         elif type(value) is tuple and len(value) is 3:
-            if all([n < 256 for n in value]):
+            if all([n < 256 and type(n) is int for n in value]):
                 self._leds[key] = value
             else:
-                raise ValueError
+                raise ValueError('LED value must be a tuple of 3 integers '
+                                 'less than 255.')
         else:
-            raise ValueError
+            raise ValueError('Unrecognized format for LED value')
 
         # Update the byte array
         self._bytes[(3 * key):(3 * (key + 1))] = self._leds[key]
@@ -104,9 +105,15 @@ def demo():
         r, g, b = leds[n % leds.num_leds]
         if n % 3 == 0:
             r = (r + n) % 17
+            g //= 2
+            b //= 2
         elif n % 3 == 1:
+            r //= 2
             g = (g + n) % 17
+            b //= 2
         else:
+            r //= 2
+            g //= 2
             b = (b + n) % 17
         leds[n % leds.num_leds] = (r, g, b)
         sleep(0.005)
