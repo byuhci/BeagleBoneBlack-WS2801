@@ -29,9 +29,6 @@ class WS2801LEDS:
         # Make the underlying byte array
         self._bytes = bytearray(3 * self.num_leds)
 
-        # Initialize LED objects
-        self._leds = [LED(0, 0, 0)] * self.num_leds
-
         # Write out bytes to turn off LEDs
         self.refresh()
 
@@ -43,7 +40,10 @@ class WS2801LEDS:
         the LED
         """
 
-        return self._leds[key]
+        return LED(
+            self._bytes[3 * key],
+            self._bytes[3 * key + 1],
+            self._bytes[3 * key + 2])
 
     def __setitem__(self, key, value):
         """
@@ -57,22 +57,18 @@ class WS2801LEDS:
         if type(value) is int:
             if not 0 <= value < 2 ** 24:
                 raise ValueError('LED value must be a 24-bit positive number.')
-            self._leds[key] = LED(
-                (value >> 16) & 0xFF,
-                (value >> 8) & 0xFF,
-                value & 0xFF)
+            self._bytes[3*key] = (value >> 16) & 0xFF
+            self._bytes[3*key+1] = (value >> 8) & 0xFF
+            self._bytes[3*key+2] = value & 0xFF
         # Set LED as tuple of ints (must be less than 2^8)
         elif type(value) is tuple and len(value) is 3:
             if all([n < 256 and type(n) is int for n in value]):
-                self._leds[key] = LED(value[0], value[1], value[2])
+                self._bytes[3*key:3*(key+1)] = value
             else:
                 raise ValueError('LED value must be a tuple of 3 integers '
                                  'less than 255.')
         else:
             raise ValueError('Unrecognized format for LED value')
-
-        # Update the byte array
-        self._bytes[(3 * key):(3 * (key + 1))] = self._leds[key]
 
         # Update the display if frame_lock is not set
         if not self._frame_hold:
