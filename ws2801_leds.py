@@ -39,7 +39,6 @@ class WS2801LEDS:
         :return: A named tuple (red, green, blue) with the intensities for
         the LED
         """
-
         return LED(
             self._bytes[3 * key],
             self._bytes[3 * key + 1],
@@ -52,18 +51,17 @@ class WS2801LEDS:
         :param value: New value for the LED, either a 3-tuple or single integer.
         :return: None
         """
-
         # Set LED as packed int (must be less than 2^24)
         if type(value) is int:
             if not 0 <= value < 2 ** 24:
                 raise ValueError('LED value must be a 24-bit positive number.')
-            self._bytes[3*key] = (value >> 16) & 0xFF
-            self._bytes[3*key+1] = (value >> 8) & 0xFF
-            self._bytes[3*key+2] = value & 0xFF
+            self._bytes[3 * key] = (value >> 16) & 0xFF
+            self._bytes[3 * key + 1] = (value >> 8) & 0xFF
+            self._bytes[3 * key + 2] = value & 0xFF
         # Set LED as tuple of ints (must be less than 2^8)
         elif type(value) is tuple and len(value) is 3:
             if all([n < 256 and type(n) is int for n in value]):
-                self._bytes[3*key:3*(key+1)] = value
+                self._bytes[3 * key:3 * (key + 1)] = value
             else:
                 raise ValueError('LED value must be a tuple of 3 integers '
                                  'less than 255.')
@@ -90,7 +88,6 @@ class WS2801LEDS:
 
     def off(self):
         """Reset all bytes to zero and turn off LEDs"""
-        self._leds = [LED(0, 0, 0)] * self.num_leds
         self._bytes = bytearray(3 * self.num_leds)
         self.refresh()
 
