@@ -78,3 +78,8 @@ class BikeLEDs:
             self.leds[0] = soft_yellow
             self.leds[1] = soft_yellow
             self.leds[2] = soft_yellow
+
+
+if __name__ == '__main__':
+    me = BikeLEDs()
+    me.left_turn()
