@@ -28,7 +28,7 @@ class BikeLEDs:
         :param leds: WS2801LEDS object to display on
         :return: A new BikeLEDs instance
         """
-        if self.leds is not None:
+        if leds is not None:
             self.leds = leds
         else:
             self.leds = WS2801LEDS()
