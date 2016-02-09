@@ -81,6 +81,7 @@ class BikeLEDs:
             self.leds[2] = soft_yellow
             self.leds.refresh()
 
+            sleep(turn_delay)
 
 if __name__ == '__main__':
     me = BikeLEDs()
