@@ -2,117 +2,113 @@
 """This class interfaces with a chain of WS2801 LED drivers connected to the
 BeagleBone Black's SPI bus."""
 
-__author__ = 'Kristian Sims'
-
+from collections import namedtuple
 from time import sleep
 
+__author__ = 'Kristian Sims'
 
-class WS2801LED:
+# This defines a tuple 'LED' that can be indexed with .red, .green, etc. It's
+#  not as useful as I hoped, though, because tuples are immutable, so I think
+#  my goal of having a line like "leds[9].red = 50" won't work. This possibly
+#  could be achieved by making a subclass with fixed __slots__.
+LED = namedtuple('LED', 'red green blue')
+
+
+class WS2801LEDS:
     def __init__(self, num_leds=25, dev_file='/dev/spidev1.0'):
         """
         Opens the file object to connect to the LEDs and initializes objects
         """
 
         self.num_leds = num_leds
+        self._frame_hold = False
 
         # Open the file
         self._spi = open(dev_file, 'wb')
 
         # Make the underlying byte array
-        self.bytes = bytearray(3 * self.num_leds)
+        self._bytes = bytearray(3 * self.num_leds)
 
-        # Initialize LED objects (could be better)
-        self.leds = []
-        for n in range(num_leds):
-            self.leds.append(self.LED(self, 3 * n))
+        # Initialize LED objects
+        self._leds = [LED(0, 0, 0)] * self.num_leds
 
         # Write out bytes to turn off LEDs
         self.refresh()
 
-    class LED:
-        def __init__(self, chain, pos):
-            self._red = 0
-            self._green = 0
-            self._blue = 0
-            self._chain = chain  # Reference to the parent object (not great)
-            self.pos = pos
+    def __getitem__(self, key):
+        """
+        Return the current stored values of the indicated LED
+        :param key: Index of the LED
+        :return: A named tuple (red, green, blue) with the intensities for
+        the LED
+        """
 
-        @property
-        def red(self):
-            return self._red
+        return self._leds[key]
 
-        @red.setter
-        def red(self, value):
-            if 0 <= value <= 255:
-                self._red = value
-            self._chain.bytes[self.pos] = int(value)
-            self._chain.refresh()
+    def __setitem__(self, key, value):
+        """
+        Set the indicated LED to value, and refresh the display if needed.
+        :param key: Index of the LED
+        :param value: New value for the LED, either a 3-tuple or single integer.
+        :return: None
+        """
 
-        @property
-        def green(self):
-            return self._green
+        # Set LED as packed int (must be less than 2^24)
+        if type(value) is int:
+            if not 0 <= value < 2 ** 24:
+                raise ValueError("LED value must be a 24-bit positive number")
+            self._leds[key] = (
+                (value >> 16) & 0xFFFF,
+                (value >> 8) & 0xFFFF,
+                value & 0xFFFF)
+        # Set LED as tuple of ints (must be less than 2^8)
+        elif type(value) is tuple and len(value) is 3:
+            if all([n < 256 for n in value]):
+                self._leds[key] = value
+            else:
+                raise ValueError
+        else:
+            raise ValueError
 
-        @green.setter
-        def green(self, value):
-            if 0 <= value <= 255:
-                self._green = value
-            self._chain.bytes[self.pos] = int(value)
-            self._chain.refresh()
+        # Update the byte array
+        self._bytes[(3 * key):(3 * (key + 1))] = self._leds[key]
 
-        @property
-        def blue(self):
-            return self._blue
+        # Update the display if frame_lock is not set
+        if not self._frame_hold:
+            self.refresh()
 
-        @blue.setter
-        def blue(self, value):
-            if 0 <= value <= 255:
-                self._blue = value
-            self._chain.bytes[self.pos] = int(value)
-            self._chain.refresh()
+    def hold_frame(self):
+        self._frame_hold = True
 
-        @property
-        def color(self):
-            return self._red, self._blue, self._green
+    def release_frame(self):
+        if self._frame_hold:
+            self.refresh()
+        self._frame_hold = False
 
-        @color.setter
-        def color(self, value):
-            if type(value) is tuple and len(value) is 3 and 0 <= min(value) \
-                    and max(value) <= 255:
-                self._red = value[0]
-                self._blue = value[1]
-                self._green = value[2]
-            elif type(value) is int and 0 <= value < 2 ** 24:
-                self._red = (value >> 16) & 255
-                self._blue = (value >> 8) & 255
-                self._red = value & 255
-            self._chain.bytes[self.pos] = self._red
-            self._chain.bytes[self.pos + 1] = self._green
-            self._chain.bytes[self.pos + 2] = self._blue
-            self._chain.refresh()
-
-    def refresh(self, setter=False):
+    def refresh(self):
         """Send signal out to LEDs from byte array"""
-        self._spi.write(self.bytes)
+        self._spi.write(self._bytes)
         self._spi.flush()
 
     def off(self):
         """Reset all bytes to zero and turn off LEDs"""
-        self.bytes = bytearray(3 * self.num_leds)
+        self._leds = [LED(0, 0, 0)] * self.num_leds
+        self._bytes = bytearray(3 * self.num_leds)
         self.refresh()
 
 
 def demo():
     """Simple demo to test and show off"""
-    leds = WS2801LED()
+    leds = WS2801LEDS()
     for n in range(12000):
-        num = leds.leds[n % leds.num_leds].color
+        r, g, b = leds[n % leds.num_leds]
         if n % 3 == 0:
-            num = (num[0] + n) % 17, num[1] / 2, num[2] / 2
+            r = (r + n) % 17
         elif n % 3 == 1:
-            num = num[0] / 2, (num[1] + n) % 17, num[2] / 2
+            g = (g + n) % 17
         else:
-            num = num[0] / 2, num[1] / 2, (num[2] + n) % 17
-        leds.leds[n % leds.num_leds].color = num
+            b = (b + n) % 17
+        leds[n % leds.num_leds] = (r, g, b)
         sleep(0.005)
     leds.off()
 
