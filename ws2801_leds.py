@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
-"""This class interfaces with a chain of WS2801 LED drivers connected to the
-BeagleBone Black's SPI bus."""
+"""
+This class interfaces with a chain of WS2801 LED drivers connected to the
+BeagleBone Black's SPI bus.
+
+Kristian Sims, BYU Physical Computing 2016
+"""
 
 from collections import namedtuple
 from time import sleep
@@ -12,6 +16,9 @@ __author__ = 'Kristian Sims'
 #  my goal of having a line like "leds[9].red = 50" won't work. This possibly
 #  could be achieved by making a subclass with fixed __slots__.
 LED = namedtuple('LED', 'red green blue')
+
+# Some colors to use
+soft_yellow = LED(16, 18, 0)
 
 
 class WS2801LEDS:
@@ -59,7 +66,7 @@ class WS2801LEDS:
             self._bytes[3 * key + 1] = (value >> 8) & 0xFF
             self._bytes[3 * key + 2] = value & 0xFF
         # Set LED as tuple of ints (must be less than 2^8)
-        elif type(value) is tuple and len(value) is 3:
+        elif type(value) in {tuple, LED} and len(value) is 3:
             if all([n < 256 and type(n) is int for n in value]):
                 self._bytes[3 * key:3 * (key + 1)] = value
             else:
