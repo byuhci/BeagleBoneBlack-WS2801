@@ -64,6 +64,7 @@ class BikeLEDs:
             self.leds[8] = soft_yellow
             self.leds[9] = soft_yellow
             self.leds[10] = soft_yellow
+            self.leds.refresh()
 
             sleep(turn_delay)
 
@@ -78,6 +79,7 @@ class BikeLEDs:
             self.leds[0] = soft_yellow
             self.leds[1] = soft_yellow
             self.leds[2] = soft_yellow
+            self.leds.refresh()
 
 
 if __name__ == '__main__':
