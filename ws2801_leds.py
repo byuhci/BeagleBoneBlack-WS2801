@@ -57,14 +57,14 @@ class WS2801LEDS:
         if type(value) is int:
             if not 0 <= value < 2 ** 24:
                 raise ValueError('LED value must be a 24-bit positive number.')
-            self._leds[key] = (
+            self._leds[key] = LED(
                 (value >> 16) & 0xFFFF,
                 (value >> 8) & 0xFFFF,
                 value & 0xFFFF)
         # Set LED as tuple of ints (must be less than 2^8)
         elif type(value) is tuple and len(value) is 3:
             if all([n < 256 and type(n) is int for n in value]):
-                self._leds[key] = value
+                self._leds[key] = LED(value[0], value[1], value[2])
             else:
                 raise ValueError('LED value must be a tuple of 3 integers '
                                  'less than 255.')
