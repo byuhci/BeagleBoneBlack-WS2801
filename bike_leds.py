@@ -97,6 +97,8 @@ class BikeLEDs:
         self.leds[17] = red
         self.leds[19] = red
 
+        self.leds.refresh()
+
 
 if __name__ == '__main__':
     me = BikeLEDs()
