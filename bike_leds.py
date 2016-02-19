@@ -112,6 +112,7 @@ class BikeLEDs:
         self.leds[13] = bright_white
         self.leds[14] = bright_white
         self.leds[15] = bright_white
+        self.leds.refresh()
 
         sleep(0.1 * turn_delay)
 
