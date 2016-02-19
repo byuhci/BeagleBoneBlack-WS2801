@@ -41,22 +41,70 @@ class BikeLEDs:
         Turn left (forever)
         :return: None
         """
-        while True:
-            self.leds.off()
+        self.leds.off()
 
-            sleep(turn_delay)
+        sleep(turn_delay)
 
-            self.leds[6] = orange
-            self.leds[5] = orange
-            self.leds[0] = orange
-            self.leds[1] = orange
-            self.leds[2] = orange
-            self.leds[4] = orange
-            self.leds.refresh()
+        self.leds[6] = orange
+        self.leds[5] = orange
+        self.leds[0] = orange
+        self.leds[1] = orange
+        self.leds[2] = orange
+        self.leds[4] = orange
+        self.leds.refresh()
 
-            sleep(turn_delay)
+        sleep(turn_delay)
+
+    def right_turn(self):
+        """
+        Turn left (forever)
+        :return: None
+        """
+        self.leds.off()
+
+        sleep(turn_delay)
+
+        self.leds[22] = orange
+        self.leds[23] = orange
+        self.leds[20] = orange
+        self.leds[24] = orange
+        self.leds[19] = orange
+        self.leds[18] = orange
+        self.leds.refresh()
+
+        sleep(turn_delay)
+
+    def brake(self):
+        """
+        Brake lights pattern
+        :return: None
+        """
+        self.leds.off()
+
+        self.leds[0] = red
+        self.leds[5] = red
+        self.leds[7] = red
+        self.leds[4] = red
+        self.leds[8] = red
+        self.leds[1] = red
+        self.leds[3] = red
+
+        self.leds[16] = red
+        self.leds[21] = red
+        self.leds[23] = red
+        self.leds[20] = red
+        self.leds[24] = red
+        self.leds[17] = red
+        self.leds[19] = red
 
 
 if __name__ == '__main__':
     me = BikeLEDs()
-    me.left_turn()
+    while True:
+        for n in range(10):
+            me.left_turn()
+        for n in range(10):
+            me.right_turn()
+
+        me.brake()
+        sleep(5)

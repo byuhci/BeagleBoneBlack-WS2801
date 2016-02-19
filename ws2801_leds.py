@@ -20,7 +20,7 @@ LED = namedtuple('LED', 'red green blue')
 # Some colors to use
 soft_yellow = LED(16, 18, 0)
 orange = LED(30, 10, 0)
-
+red = LED(35, 0, 0)
 
 class WS2801LEDS:
     def __init__(self, num_leds=25, dev_file='/dev/spidev1.0'):
