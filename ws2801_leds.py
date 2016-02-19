@@ -21,6 +21,8 @@ LED = namedtuple('LED', 'red green blue')
 soft_yellow = LED(16, 18, 0)
 orange = LED(30, 10, 0)
 red = LED(35, 0, 0)
+bright_white = LED(200, 200, 200)
+
 
 class WS2801LEDS:
     def __init__(self, num_leds=25, dev_file='/dev/spidev1.0'):

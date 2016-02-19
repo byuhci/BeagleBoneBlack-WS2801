@@ -99,14 +99,40 @@ class BikeLEDs:
 
         self.leds.refresh()
 
+    def night_light(self):
+        """
+        Safety lights
+        :return:
+        """
+        self.leds.off()
+
+        sleep(0.1 * turn_delay)
+
+        self.leds[12] = bright_white
+        self.leds[13] = bright_white
+        self.leds[14] = bright_white
+        self.leds[15] = bright_white
+
+        sleep(0.1 * turn_delay)
+
 
 if __name__ == '__main__':
     me = BikeLEDs()
     while True:
+
+        for n in range(100):
+            me.night_light()
+
+        sleep(2*turn_delay)
+
         for n in range(10):
             me.left_turn()
+
+        sleep(2*turn_delay)
+
         for n in range(10):
             me.right_turn()
+        sleep(2*turn_delay)
 
         me.brake()
         sleep(5)
