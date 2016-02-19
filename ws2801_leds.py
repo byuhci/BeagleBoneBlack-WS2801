@@ -19,6 +19,7 @@ LED = namedtuple('LED', 'red green blue')
 
 # Some colors to use
 soft_yellow = LED(16, 18, 0)
+orange = LED(20, 10, 0)
 
 
 class WS2801LEDS:

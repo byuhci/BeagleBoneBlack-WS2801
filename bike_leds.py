@@ -44,44 +44,18 @@ class BikeLEDs:
         while True:
             self.leds.off()
 
-            self.leds[22] = soft_yellow
-            self.leds[21] = soft_yellow
-            self.leds[16] = soft_yellow
-            self.leds[17] = soft_yellow
-            self.leds[18] = soft_yellow
+            sleep(turn_delay)
+
+            self.leds[6] = orange
+            self.leds[5] = orange
+            self.leds[0] = orange
+            self.leds[1] = orange
+            self.leds[2] = orange
+            self.leds[4] = orange
             self.leds.refresh()
 
             sleep(turn_delay)
 
-            self.leds[22] = 0
-            self.leds[21] = 0
-            self.leds[16] = 0
-            self.leds[17] = 0
-            self.leds[18] = 0
-
-            self.leds[14] = soft_yellow
-            self.leds[13] = soft_yellow
-            self.leds[8] = soft_yellow
-            self.leds[9] = soft_yellow
-            self.leds[10] = soft_yellow
-            self.leds.refresh()
-
-            sleep(turn_delay)
-
-            self.leds[14] = 0
-            self.leds[13] = 0
-            self.leds[8] = 0
-            self.leds[9] = 0
-            self.leds[10] = 0
-
-            self.leds[6] = soft_yellow
-            self.leds[5] = soft_yellow
-            self.leds[0] = soft_yellow
-            self.leds[1] = soft_yellow
-            self.leds[2] = soft_yellow
-            self.leds.refresh()
-
-            sleep(1.5 *turn_delay)
 
 if __name__ == '__main__':
     me = BikeLEDs()
