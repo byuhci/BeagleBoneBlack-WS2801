@@ -57,15 +57,19 @@ class WS2801LEDS:
     def __setitem__(self, key, value):
         """
         Set the indicated LED to value, and refresh the display if needed.
-        :param key: Index of the LED
+        :param key: Index of the LED, or a list or set of indices
         :param value: New value for the LED, either a 3-tuple or single integer.
         :return: None
         """
 
         # Try to map for multiple assignments
         if type(key) in {list, set}:
+            temp = self._frame_hold
+            self.hold_frame()
             for k in key:
                 self.__setitem__(k, value)
+            if not temp:  # Don't release if it was already held
+                self.release_frame()
         # Set LED as packed int (must be less than 2^24)
         elif type(value) is int:
             if not 0 <= value < 2 ** 24:
@@ -115,25 +119,17 @@ class WS2801LEDS:
 
 def demo():
     """Simple demo to test and show off"""
+    from math import sin, pi
     leds = WS2801LEDS()
-    for n in range(12000):
-        r, g, b = leds[n % leds.num_leds]
-        if n % 3 == 0:
-            r = (r + n) % 17
-            g //= 2
-            b //= 2
-        elif n % 3 == 1:
-            r //= 2
-            g = (g + n) % 17
-            b //= 2
-        else:
-            r //= 2
-            g //= 2
-            b = (b + n) % 17
-        leds[n % leds.num_leds] = (r, g, b)
-        # sleep(0.005)
-    leds.off()
-
+    t = 0
+    while True:
+        t += 0.01
+        leds.hold_frame()
+        for n in range(25):
+            leds[n] = (int(25 * (1 + sin(t - 2 * pi * n / 25))),
+                       int(25 * (1 + sin(t - 2 * pi * (n / 25 + 1 / 3)))),
+                       int(25 * (1 + sin(t - 2 * pi * (n / 25 + 2 / 3)))))
+        leds.release_frame()
 
 if __name__ == '__main__':
     demo()

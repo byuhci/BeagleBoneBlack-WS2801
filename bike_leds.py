@@ -21,17 +21,10 @@ __author__ = 'Kristian Sims'
 
 turn_delay = 0.6
 
-def call_repeatedly(interval, target, *args):
-    stopped = Event()
-    def loop():
-        while not stopped.wait(interval):
-            target(*args)
-    Thread(target=loop).start()
-    return stopped.set
-
 
 class BikeLEDs:
     turn_interval = 0.6
+    night_light_interval = 0.05
     left_arrow_dex = [0, 1, 2, 4, 5, 6]
     right_arrow_dex = [18, 19, 20, 22, 23, 24]
     brake_light_dex = [0, 1, 3, 4, 5, 7, 16, 17, 19, 20, 21, 23, 24]
@@ -48,107 +41,81 @@ class BikeLEDs:
         else:
             self.leds = WS2801LEDS()
 
-        self.leds.hold_frame()  # refresh() must be called manually
         self.leds.off()
 
-        self.left_time = 0
-        self.right_time = 0
-        self.night_time = 0
+        self.left_turn_off_func = None
+        self.right_turn_off_func = None
+        self.night_light_off_func = None
 
-        led_thread = Thread(target=self.update_leds,
-                            name='BikeLEDs daemon',
-                            daemon=True)
+    def left_turn_on(self):
+        self.left_turn_off_func = self.flash(self.left_arrow_dex, orange,
+                                             self.turn_interval)
+        return self.left_turn_off_func
 
-    def update_leds(self):
-        """
-        Daemon thread to update LEDs in the background
-        :return: None
-        """
-        self.leds.hold_frame()
-        if self.night_time > 0:
-            if time() - self.night_time > 0.6:
-                for n in self.night_light_dex:
-                    leds[n] =
+    def left_turn_off(self):
+        if self.left_turn_off_func is not None:
+            self.left_turn_off_func()
+            self.left_turn_off_func = None
 
-    def left_turn(self):
-        """
-        Turn left (forever)
-        :return: None
-        """
-        self.leds.off()
+    def right_turn_on(self):
+        self.right_turn_off_func = self.flash(self.right_arrow_dex, orange,
+                                              self.turn_interval)
+        return self.right_turn_off_func
 
-        sleep(turn_delay)
+    def right_turn_off(self):
+        if self.right_turn_off_func is not None:
+            self.right_turn_off_func()
+            self.right_turn_off_func = None
 
-        self.leds[6] = orange
-        self.leds[5] = orange
-        self.leds[0] = orange
-        self.leds[1] = orange
-        self.leds[2] = orange
-        self.leds[4] = orange
-        self.leds.refresh()
+    def brake_light_on(self):
+        self.leds[self.brake_light_dex] = red
 
-        sleep(turn_delay)
-
-    def right_turn(self):
-        """
-        Turn left (forever)
-        :return: None
-        """
-        self.leds.off()
-
-        sleep(turn_delay)
-
-        self.leds[22] = orange
-        self.leds[23] = orange
-        self.leds[20] = orange
-        self.leds[24] = orange
-        self.leds[19] = orange
-        self.leds[18] = orange
-        self.leds.refresh()
-
-        sleep(turn_delay)
-
-    def brake(self):
-        """
-        Brake lights pattern
-        :return: None
-        """
-        self.leds.off()
-
-        self.leds[0] = red
-        self.leds[5] = red
-        self.leds[7] = red
-        self.leds[4] = red
-        self.leds[8] = red
-        self.leds[1] = red
-        self.leds[3] = red
-
-        self.leds[16] = red
-        self.leds[21] = red
-        self.leds[23] = red
-        self.leds[20] = red
-        self.leds[24] = red
-        self.leds[17] = red
-        self.leds[19] = red
-
-        self.leds.refresh()
+    def brake_light_off(self):
+        self.leds[self.brake_light_dex] = 0
 
     def night_light_on(self):
         """
-        Safety lights
-        :return:
+        Flash safety lights at 10 Hz
+        :return: A function that, when called, will stop the flashing
         """
-        self.leds.off()
+        self.night_light_off_func = self.flash(self.night_light_dex,
+                                               bright_white,
+                                               self.night_light_interval)
+        return self.night_light_off_func
 
-        sleep(0.1 * turn_delay)
+    def night_light_off(self):
+        """
+        Turn of the safety lights, if on
+        :return: None
+        """
+        if self.night_light_off_func is not None:
+            self.night_light_off_func()
+        self.night_light_off_func = None
 
-        self.leds[12] = bright_white
-        self.leds[13] = bright_white
-        self.leds[14] = bright_white
-        self.leds[15] = bright_white
-        self.leds.refresh()
+    def flash(self, dex, color, interval):
+        """
+        Flash some LEDs in a separate thread
+        :param dex: List containing the indices of the LEDs to flash
+        :param color: Color to light the LEDs
+        :param interval: Time for LEDs to be on/off (half-period)
+        :return: A function that, when called, will stop the flashing thread
+        """
+        stopped = Event()
 
-        sleep(0.1 * turn_delay)
+        def loop():
+            while True:
+                if stopped.wait(interval):
+                    break
+                else:
+                    self.leds[dex] = color
+                if stopped.wait(interval):
+                    break
+                else:
+                    self.leds[dex] = 0
+
+        Thread(target=loop, daemon=True).start()
+
+        return stopped.set
 
 
 if __name__ == '__main__':
