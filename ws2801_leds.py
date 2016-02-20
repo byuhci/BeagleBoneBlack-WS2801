@@ -94,7 +94,7 @@ class WS2801LEDS:
         """Send signal out to LEDs from byte array"""
         self._spi.write(self._bytes)
         self._spi.flush()
-        sleep(0.0006)
+        sleep(0.001)
 
     def off(self):
         """Reset all bytes to zero and turn off LEDs"""
