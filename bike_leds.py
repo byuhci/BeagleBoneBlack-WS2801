@@ -24,7 +24,7 @@ class BikeLEDs:
     night_light_interval = 0.05
     left_arrow_dex = [0, 1, 2, 4, 5, 6]
     right_arrow_dex = [18, 19, 20, 22, 23, 24]
-    brake_light_dex = [0, 1, 3, 4, 5, 7, 16, 17, 19, 20, 21, 23, 24]
+    brake_light_dex = [0, 1, 3, 4, 5, 7, 8, 16, 17, 19, 20, 21, 23, 24]
     night_light_dex = [12, 13, 14, 15]
 
     def __init__(self, leds=None):
@@ -116,5 +116,6 @@ if __name__ == '__main__':
         sleep(1)
         me.brake_light_on()
         sleep(3)
+        me.brake_light_off()
         me.night_light_off()
         sleep(10)
