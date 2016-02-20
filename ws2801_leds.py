@@ -19,7 +19,7 @@ LED = namedtuple('LED', 'red green blue')
 
 # Some colors to use
 soft_yellow = LED(16, 18, 0)
-orange = LED(30, 10, 0)
+orange = LED(50, 8, 0)
 red = LED(35, 0, 0)
 bright_white = LED(200, 200, 200)
 
