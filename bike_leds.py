@@ -14,12 +14,9 @@ Kristian Sims, BYU Physical Computing 2016
 """
 
 from ws2801_leds import *
-from time import sleep, time
-from threading import Event, Thread
+from time import sleep
 
 __author__ = 'Kristian Sims'
-
-turn_delay = 0.6
 
 
 class BikeLEDs:
@@ -48,8 +45,8 @@ class BikeLEDs:
         self.night_light_off_func = None
 
     def left_turn_on(self):
-        self.left_turn_off_func = self.flash(self.left_arrow_dex, orange,
-                                             self.turn_interval)
+        self.left_turn_off_func = self.leds.flash(self.left_arrow_dex, orange,
+                                                  self.turn_interval)
         return self.left_turn_off_func
 
     def left_turn_off(self):
@@ -58,8 +55,8 @@ class BikeLEDs:
             self.left_turn_off_func = None
 
     def right_turn_on(self):
-        self.right_turn_off_func = self.flash(self.right_arrow_dex, orange,
-                                              self.turn_interval)
+        self.right_turn_off_func = self.leds.flash(self.right_arrow_dex, orange,
+                                                   self.turn_interval)
         return self.right_turn_off_func
 
     def right_turn_off(self):
@@ -78,9 +75,9 @@ class BikeLEDs:
         Flash safety lights at 10 Hz
         :return: A function that, when called, will stop the flashing
         """
-        self.night_light_off_func = self.flash(self.night_light_dex,
-                                               bright_white,
-                                               self.night_light_interval)
+        self.night_light_off_func = self.leds.flash(self.night_light_dex,
+                                                    bright_white,
+                                                    self.night_light_interval)
         return self.night_light_off_func
 
     def night_light_off(self):
@@ -92,49 +89,32 @@ class BikeLEDs:
             self.night_light_off_func()
         self.night_light_off_func = None
 
-    def flash(self, dex, color, interval):
-        """
-        Flash some LEDs in a separate thread
-        :param dex: List containing the indices of the LEDs to flash
-        :param color: Color to light the LEDs
-        :param interval: Time for LEDs to be on/off (half-period)
-        :return: A function that, when called, will stop the flashing thread
-        """
-        stopped = Event()
-
-        def loop():
-            while True:
-                if stopped.wait(interval):
-                    break
-                else:
-                    self.leds[dex] = color
-                if stopped.wait(interval):
-                    break
-                else:
-                    self.leds[dex] = 0
-
-        Thread(target=loop, daemon=True).start()
-
-        return stopped.set
-
 
 if __name__ == '__main__':
     me = BikeLEDs()
     while True:
-
-        for n in range(100):
-            me.night_light()
-
-        sleep(2 * turn_delay)
-
-        for n in range(10):
-            me.left_turn()
-
-        sleep(2 * turn_delay)
-
-        for n in range(10):
-            me.right_turn()
-        sleep(2 * turn_delay)
-
-        me.brake()
+        me.left_turn_on()
         sleep(5)
+        me.left_turn_off()
+        sleep(1)
+        me.right_turn_on()
+        sleep(5)
+        me.right_turn_off()
+        sleep(1)
+        me.brake_light_on()
+        sleep(3)
+        me.night_light_on()
+        sleep(3)
+        me.brake_light_off()
+        me.left_turn_on()
+        sleep(5)
+        me.left_turn_off()
+        sleep(1)
+        me.right_turn_on()
+        sleep(5)
+        me.right_turn_off()
+        sleep(1)
+        me.brake_light_on()
+        sleep(3)
+        me.night_light_off()
+        sleep(10)

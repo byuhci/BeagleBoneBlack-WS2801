@@ -8,6 +8,7 @@ Kristian Sims, BYU Physical Computing 2016
 
 from collections import namedtuple
 from time import sleep
+from threading import Event, Thread
 
 __author__ = 'Kristian Sims'
 
@@ -19,8 +20,8 @@ LED = namedtuple('LED', 'red green blue')
 
 # Some colors to use
 soft_yellow = LED(16, 18, 0)
-orange = LED(50, 8, 0)
-red = LED(35, 0, 0)
+orange = LED(80, 15, 0)
+red = LED(120, 0, 0)
 bright_white = LED(200, 200, 200)
 
 
@@ -115,6 +116,32 @@ class WS2801LEDS:
         """Reset all bytes to zero and turn off LEDs"""
         self._bytes = bytearray(3 * self.num_leds)
         self.refresh()
+
+    def flash(self, dex, color, interval):
+        """
+        Flash some LEDs in a separate thread
+        :param dex: List containing the indices of the LEDs to flash
+        :param color: Color to light the LEDs
+        :param interval: Time for LEDs to be on/off (half-period)
+        :return: A function that, when called, will stop the flashing thread
+        """
+        stopped = Event()
+
+        def loop():
+            while True:
+                if stopped.wait(interval):
+                    break
+                else:
+                    self[dex] = color
+                if stopped.wait(interval):
+                    break
+                else:
+                    self[dex] = 0
+            self[dex] = 0
+
+        Thread(target=loop, daemon=True).start()
+
+        return stopped.set
 
 
 def demo():
