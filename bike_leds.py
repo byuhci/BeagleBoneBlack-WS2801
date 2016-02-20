@@ -15,6 +15,7 @@ Kristian Sims, BYU Physical Computing 2016
 
 from ws2801_leds import *
 from time import sleep
+import threading
 
 __author__ = 'Kristian Sims'
 
@@ -35,6 +36,19 @@ class BikeLEDs:
 
         self.leds.hold_frame()  # refresh() must be called manually
         self.leds.off()
+
+        self.left_time = 0
+        self.right_time = 0
+        self.night_time = 0
+
+        led_thread = threading.Thread(target=self.update_leds)
+
+    def update_leds(self):
+        """
+        Daemon thread to update LEDs in the background
+        :return: None
+        """
+
 
     def left_turn(self):
         """
