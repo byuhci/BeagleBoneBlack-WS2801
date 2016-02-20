@@ -61,8 +61,13 @@ class WS2801LEDS:
         :param value: New value for the LED, either a 3-tuple or single integer.
         :return: None
         """
+
+        # Try to map for multiple assignments
+        if type(key) in {list, set}:
+            for k in key:
+                self.__setitem__(k, value)
         # Set LED as packed int (must be less than 2^24)
-        if type(value) is int:
+        elif type(value) is int:
             if not 0 <= value < 2 ** 24:
                 raise ValueError('LED value must be a 24-bit positive number.')
             self._bytes[3 * key] = (value >> 16) & 0xFF
@@ -90,11 +95,17 @@ class WS2801LEDS:
             self.refresh()
         self._frame_hold = False
 
-    def refresh(self):
-        """Send signal out to LEDs from byte array"""
+    def refresh(self, wait_for_latch=True):
+        """
+        Send signal out to LEDs from byte array
+        :param wait_for_latch: Wait until the frame latches. Set to false if
+        there's no possibility that refresh() will be called again very soon.
+        :return: None
+        """
         self._spi.write(self._bytes)
         self._spi.flush()
-        sleep(0.001)
+        if wait_for_latch:
+            sleep(0.001)
 
     def off(self):
         """Reset all bytes to zero and turn off LEDs"""

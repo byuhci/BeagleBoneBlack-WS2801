@@ -14,15 +14,29 @@ Kristian Sims, BYU Physical Computing 2016
 """
 
 from ws2801_leds import *
-from time import sleep
-import threading
+from time import sleep, time
+from threading import Event, Thread
 
 __author__ = 'Kristian Sims'
 
 turn_delay = 0.6
 
+def call_repeatedly(interval, target, *args):
+    stopped = Event()
+    def loop():
+        while not stopped.wait(interval):
+            target(*args)
+    Thread(target=loop).start()
+    return stopped.set
+
 
 class BikeLEDs:
+    turn_interval = 0.6
+    left_arrow_dex = [0, 1, 2, 4, 5, 6]
+    right_arrow_dex = [18, 19, 20, 22, 23, 24]
+    brake_light_dex = [0, 1, 3, 4, 5, 7, 16, 17, 19, 20, 21, 23, 24]
+    night_light_dex = [12, 13, 14, 15]
+
     def __init__(self, leds=None):
         """
         Initialize the BikeLEDs class
@@ -41,14 +55,20 @@ class BikeLEDs:
         self.right_time = 0
         self.night_time = 0
 
-        led_thread = threading.Thread(target=self.update_leds)
+        led_thread = Thread(target=self.update_leds,
+                            name='BikeLEDs daemon',
+                            daemon=True)
 
     def update_leds(self):
         """
         Daemon thread to update LEDs in the background
         :return: None
         """
-
+        self.leds.hold_frame()
+        if self.night_time > 0:
+            if time() - self.night_time > 0.6:
+                for n in self.night_light_dex:
+                    leds[n] =
 
     def left_turn(self):
         """
@@ -113,7 +133,7 @@ class BikeLEDs:
 
         self.leds.refresh()
 
-    def night_light(self):
+    def night_light_on(self):
         """
         Safety lights
         :return:
@@ -138,16 +158,16 @@ if __name__ == '__main__':
         for n in range(100):
             me.night_light()
 
-        sleep(2*turn_delay)
+        sleep(2 * turn_delay)
 
         for n in range(10):
             me.left_turn()
 
-        sleep(2*turn_delay)
+        sleep(2 * turn_delay)
 
         for n in range(10):
             me.right_turn()
-        sleep(2*turn_delay)
+        sleep(2 * turn_delay)
 
         me.brake()
         sleep(5)
