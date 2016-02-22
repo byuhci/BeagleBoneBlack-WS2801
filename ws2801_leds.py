@@ -8,7 +8,7 @@ Kristian Sims, BYU Physical Computing 2016
 
 from collections import namedtuple
 from time import sleep
-from threading import Event, Thread
+from threading import Event, Thread, Timer
 
 __author__ = 'Kristian Sims'
 
@@ -117,14 +117,28 @@ class WS2801LEDS:
         self._bytes = bytearray(3 * self.num_leds)
         self.refresh()
 
-    def flash(self, dex, color, interval):
+    def flash(self, dex, color, interval, duration=0):
         """
         Flash some LEDs in a separate thread
-        :param dex: List containing the indices of the LEDs to flash
+        :param dex: Index or list of indices of the LED(s) to flash
         :param color: Color to light the LEDs
-        :param interval: Time for LEDs to be on/off (half-period)
+        :param interval: Time for LEDs to be on/off (half-period), 0 for steady
+        :param duration: Total time for LEDs to be flashing/on, 0 for forever
         :return: A function that, when called, will stop the flashing thread
         """
+
+        # If the interval is 0, keep the LED(s) on steady for duration
+        if interval == 0:
+            self[dex] = color
+
+            def flash_off():
+                self[dex] = 0
+
+            if duration > 0:
+                Timer(duration, flash_off).start()
+            return flash_off
+
+        # Otherwise, make a thread to toggle the LED(s)
         stopped = Event()
 
         def loop():
@@ -139,7 +153,12 @@ class WS2801LEDS:
                     self[dex] = 0
             self[dex] = 0
 
+        # Start thread
         Thread(target=loop, daemon=True).start()
+
+        # Start timer to stop thread
+        if duration > 0:
+            Timer(duration, stopped.set).start()
 
         return stopped.set
 
@@ -157,6 +176,7 @@ def demo():
                        int(25 * (1 + sin(t - 2 * pi * (n / 25 + 1 / 3)))),
                        int(25 * (1 + sin(t - 2 * pi * (n / 25 + 2 / 3)))))
         leds.release_frame()
+
 
 if __name__ == '__main__':
     demo()
