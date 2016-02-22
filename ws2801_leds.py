@@ -160,6 +160,8 @@ class WS2801LEDS:
         if duration > 0:
             Timer(duration, stopped.set).start()
 
+        # TODO Cancel timers if the function is called?
+
         return stopped.set
 
 

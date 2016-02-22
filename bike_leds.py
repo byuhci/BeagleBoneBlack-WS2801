@@ -64,21 +64,22 @@ class BikeLEDs:
             self.right_turn_off_func()
             self.right_turn_off_func = None
 
-    def brake_light_on(self, duration):
-        self.leds[self.brake_light_dex] = red
-
+    def brake_light_on(self, duration=0):
+        self.leds.flash(self.brake_light_dex, red, 0, duration)
 
     def brake_light_off(self):
         self.leds[self.brake_light_dex] = 0
 
-    def night_light_on(self):
+    def night_light_on(self, duration=0):
         """
         Flash safety lights at 5 Hz
+        :param duration: Time to keep night light on in seconds
         :return: A function that, when called, will stop the flashing
         """
         self.night_light_off_func = self.leds.flash(self.night_light_dex,
                                                     bright_white,
-                                                    self.night_light_interval)
+                                                    self.night_light_interval,
+                                                    duration)
         return self.night_light_off_func
 
     def night_light_off(self):
