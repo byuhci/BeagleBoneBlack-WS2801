@@ -179,7 +179,7 @@ def demo():
     leds.hold_frame()
     frames = []
     for i in range(300):
-        t = i*pi/300
+        t = i*2*pi/300
         for n in range(25):
             leds[n] = (int(25 * (1 + sin(t - 2 * pi * n / 25))),
                        int(25 * (1 + sin(t - 2 * pi * (n / 25 + 1 / 3)))),
