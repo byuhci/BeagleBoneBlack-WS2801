@@ -45,6 +45,9 @@ class BikeLEDs:
         self.night_light_off_func = None
 
     def left_turn_on(self, duration=0):
+        self.left_turn_off()
+        self.right_turn_off()
+        self.brake_light_off()
         self.left_turn_off_func = self.leds.flash(self.left_arrow_dex, orange,
                                                   self.turn_interval, duration)
         return self.left_turn_off_func
@@ -55,6 +58,9 @@ class BikeLEDs:
             self.left_turn_off_func = None
 
     def right_turn_on(self, duration=0):
+        self.left_turn_off()
+        self.right_turn_off()
+        self.brake_light_off()
         self.right_turn_off_func = self.leds.flash(self.right_arrow_dex, orange,
                                                    self.turn_interval, duration)
         return self.right_turn_off_func
@@ -65,6 +71,9 @@ class BikeLEDs:
             self.right_turn_off_func = None
 
     def brake_light_on(self, duration=0):
+        self.left_turn_off()
+        self.right_turn_off()
+        self.brake_light_off()
         self.leds.flash(self.brake_light_dex, red, 0, duration)
 
     def brake_light_off(self):
