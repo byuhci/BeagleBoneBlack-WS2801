@@ -101,10 +101,10 @@ class WS2801LEDS:
         self._frame_hold = False
 
     def get_frame(self):
-        return self._bytes
+        return self._bytes.copy()
 
-    def set_frame(self, bytes):
-        self._bytes = bytes
+    def set_frame(self, frame):
+        self._bytes = frame
         self.refresh()
 
     def refresh(self, wait_for_latch=True):
