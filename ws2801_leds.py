@@ -176,7 +176,7 @@ def demo():
     """Simple demo to test and show off"""
     from math import sin, pi
     leds = WS2801LEDS()
-    leds.hold_frame()
+
     frames = []
     for i in range(300):
         t = i*2*pi/300
@@ -186,7 +186,6 @@ def demo():
                        int(25 * (1 + sin(t - 2 * pi * (n / 25 + 2 / 3)))))
         frames.append(leds.get_frame())
 
-    leds.release_frame()
     while True:
         for frame in frames:
             leds.set_frame(frame)
