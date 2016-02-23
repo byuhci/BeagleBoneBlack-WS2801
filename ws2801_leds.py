@@ -88,7 +88,7 @@ class WS2801LEDS:
         else:
             raise ValueError('Unrecognized format for LED value')
 
-        # Update the display if frame_lock is not set
+        # Update the display if frame_hold is not set
         if not self._frame_hold:
             self.refresh()
 
@@ -99,6 +99,13 @@ class WS2801LEDS:
         if self._frame_hold:
             self.refresh()
         self._frame_hold = False
+
+    def get_frame(self):
+        return self._bytes
+
+    def set_frame(self, bytes):
+        self._bytes = bytes
+        self.refresh()
 
     def refresh(self, wait_for_latch=True):
         """
@@ -115,7 +122,7 @@ class WS2801LEDS:
     def off(self):
         """Reset all bytes to zero and turn off LEDs"""
         self._bytes = bytearray(3 * self.num_leds)
-        self.refresh()
+        self.refresh()  # Should this check frame_hold?
 
     def flash(self, dex, color, interval, duration=0):
         """
@@ -169,15 +176,21 @@ def demo():
     """Simple demo to test and show off"""
     from math import sin, pi
     leds = WS2801LEDS()
-    t = 0
-    while True:
-        t += 0.01
-        leds.hold_frame()
+    leds.hold_frame()
+    frames = []
+    for i in range(300):
+        t = i*pi/300
         for n in range(25):
             leds[n] = (int(25 * (1 + sin(t - 2 * pi * n / 25))),
                        int(25 * (1 + sin(t - 2 * pi * (n / 25 + 1 / 3)))),
                        int(25 * (1 + sin(t - 2 * pi * (n / 25 + 2 / 3)))))
-        leds.release_frame()
+        frames.append(leds.get_frame())
+
+    leds.release_frame()
+    while True:
+        for frame in frames:
+            leds.set_frame(frame)
+            sleep(0.02)
 
 
 if __name__ == '__main__':
